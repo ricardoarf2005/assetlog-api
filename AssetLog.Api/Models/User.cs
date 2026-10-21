@@ -14,5 +14,10 @@ namespace AssetLog.Api.Models
         public bool IsActive { get; set; }
         public DateTime EndDate { get; set; }
         public TypeOfContractEnum TypeOfContract { get; set; }
+
+        public List<Order> Orders { get; set; } = new();
+        public List<TrackingNotification> TrackingNotifications { get; set; } = new();
+        public List<StockNotification> StockNotifications { get; set; } = new();
+        public List<Tracking> Trackings { get; set; } = new();
     }
 }

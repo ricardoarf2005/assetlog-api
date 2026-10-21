@@ -7,5 +7,8 @@
         public int TrackingId { get; set; }
         public String Message { get; set; } = string.Empty;
         public DateTime Date { get; set; }
+
+        public User User { get; set; } = null!;
+        public Tracking Tracking { get; set; } = null!;
     }
 }

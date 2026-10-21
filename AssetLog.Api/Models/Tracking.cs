@@ -1,4 +1,5 @@
 ﻿using AssetLog.Api.Models.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AssetLog.Api.Models
 {
@@ -10,5 +11,12 @@ namespace AssetLog.Api.Models
         public DateTime Date { get; set; }
         public StatusEnum Status { get; set; }
         public String? Comments { get; set; }
+        public int TrackingNotificationId { get; set; }
+
+
+        [ForeignKey("ApproverId")]
+        public User Approver { get; set; } = null!;
+        public Order Order { get; set; } = null!;
+        public TrackingNotification TrackingNotification { get; set; } = null!;
     }
 }
