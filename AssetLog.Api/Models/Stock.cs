@@ -1,4 +1,4 @@
-﻿/*namespace AssetLog.Api.Models
+﻿namespace AssetLog.Api.Models
 {
     public class Stock
     {
@@ -6,7 +6,6 @@
         public int EquipmentId { get; set; }
         public int Quantity { get; set; }
 
-        public Equipment Equipment { get; set; }
+        public Equipment Equipment { get; set; } = null!;
     }
-}*/
-// Sera mesmo necessario tabela Stock? nao podemos colocar quantity na tabela equipment?
+}
