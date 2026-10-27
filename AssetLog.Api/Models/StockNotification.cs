@@ -8,6 +8,7 @@ namespace AssetLog.Api.Models
         public int ApproverId { get; set; }
         public int EquipmentId { get; set; }
         public String? Message { get; set; }
+        public bool IsRead { get; set; }
 
         [ForeignKey("ApproverId")]
         public User Approver { get; set; } = null!;

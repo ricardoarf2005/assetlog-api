@@ -78,16 +78,11 @@ namespace AssetLog.Api.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId1")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ApproverId");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("Orders");
                 });
@@ -129,6 +124,9 @@ namespace AssetLog.Api.Migrations
                     b.Property<int>("EquipmentId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -152,6 +150,9 @@ namespace AssetLog.Api.Migrations
 
                     b.Property<int>("EquipmentId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Message")
                         .HasColumnType("longtext");
@@ -210,6 +211,9 @@ namespace AssetLog.Api.Migrations
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -280,14 +284,10 @@ namespace AssetLog.Api.Migrations
                         .IsRequired();
 
                     b.HasOne("AssetLog.Api.Models.User", "User")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("AssetLog.Api.Models.User", null)
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("Approver");
 
