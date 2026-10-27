@@ -1,6 +1,64 @@
 @AssetLog.Api_HostAddress = http://localhost:5190
 
-GET {{AssetLog.Api_HostAddress}}/weatherforecast/
+### 1. POST /api/order -> Adicionar Order
+POST {{AssetLog.Api_HostAddress}}/api/order
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "items": [
+    {
+      "equipmentId": 1,
+      "quantity": 2
+    }
+  ]
+}
+
+### 2. GET /api/order/user/{userId} -> Orders do User
+GET {{AssetLog.Api_HostAddress}}/api/order/user/1
 Accept: application/json
 
-###
+### 3. GET /api/order/approver/{approverId} -> Orders do Approver
+GET {{AssetLog.Api_HostAddress}}/api/order/approver/2
+Accept: application/json
+
+### 4. GET /api/order/status/{status} -> Orders com um certo estado
+GET {{AssetLog.Api_HostAddress}}/api/order/status/OPENED
+Accept: application/json
+
+### 5. GET /api/order/{orderId} (ou /api/order/user/{userId}/{orderId}) -> Detalhes da Order
+GET {{AssetLog.Api_HostAddress}}/api/order/1
+Accept: application/json
+
+### 6. PUT /api/order/{orderId}/status -> Atualizar estado da Order
+PUT {{AssetLog.Api_HostAddress}}/api/order/1/status
+Content-Type: application/json
+
+{
+  "approverId": 2,
+  "status": "APPROVED",
+  "comments": "Order approved and items allocated."
+}
+
+### 7. PUT /api/order/{orderId}/expected-delivery-date -> Alteração da data de entrega expectável
+PUT {{AssetLog.Api_HostAddress}}/api/order/1/expected-delivery-date
+Content-Type: application/json
+
+{
+  "approverId": 2,
+  "expectedDeliveryDate": "2026-11-10T00:00:00Z",
+  "comments": "Supplier delivery rescheduled."
+}
+
+### 8. GET /api/order/notification/user/{userId} -> Mostrar notificações (com filtro opcional ?isRead=false)
+GET {{AssetLog.Api_HostAddress}}/api/order/notification/user/1?isRead=false
+Accept: application/json
+
+### 9. PUT /api/order/notification/{notificationId}/read -> Marcar notificação individual como lida
+PUT {{AssetLog.Api_HostAddress}}/api/order/notification/1/read
+
+### 10. PUT /api/order/notification/user/{userId}/read -> Marcar todas (ou lista de IDs) como lidas
+PUT {{AssetLog.Api_HostAddress}}/api/order/notification/user/1/read
+Content-Type: application/json
+
+[]

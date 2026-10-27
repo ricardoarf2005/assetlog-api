@@ -63,7 +63,7 @@ namespace AssetLog.Api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ApproverId")
+                    b.Property<int?>("ApproverId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreationDate")
@@ -123,9 +123,6 @@ namespace AssetLog.Api.Migrations
 
                     b.Property<int>("EquipmentId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -280,8 +277,7 @@ namespace AssetLog.Api.Migrations
                     b.HasOne("AssetLog.Api.Models.User", "Approver")
                         .WithMany()
                         .HasForeignKey("ApproverId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("AssetLog.Api.Models.User", "User")
                         .WithMany("Orders")
