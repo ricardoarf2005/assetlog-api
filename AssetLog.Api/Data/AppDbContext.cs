@@ -9,14 +9,14 @@ public class AppDbContext : DbContext
     {
     }
 
-    DbSet<Equipment> Equipments { get; set; }
-    DbSet<Order> Orders { get; set; }
-    DbSet<OrderItem> OrderItems { get; set; }
-    DbSet<Stock> Stocks { get; set; }
-    DbSet<StockNotification> StockNotifications { get; set; }
-    DbSet<Tracking> Trackings { get; set; }
-    DbSet<TrackingNotification> TrackingNotifications { get; set; }
-    DbSet<User> Users { get; set; }
+    public DbSet<Equipment> Equipments { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
+    public DbSet<Stock> Stocks { get; set; }
+    public DbSet<StockNotification> StockNotifications { get; set; }
+    public DbSet<Tracking> Trackings { get; set; }
+    public DbSet<TrackingNotification> TrackingNotifications { get; set; }
+    public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
