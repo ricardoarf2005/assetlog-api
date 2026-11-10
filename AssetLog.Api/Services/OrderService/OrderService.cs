@@ -322,7 +322,7 @@ namespace AssetLog.Api.Services.OrderService
                     Id = oi.Id,
                     EquipmentId = oi.EquipmentId,
                     EquipmentName = oi.Equipment?.Name ?? string.Empty,
-                    Description = oi.Equipment?.Descritpion ?? string.Empty,
+                    Description = oi.Equipment?.Description ?? string.Empty,
                     Category = oi.Equipment?.Category ?? default,
                     Quantity = oi.Quantity
                 }).ToList(),
