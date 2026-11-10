@@ -1,5 +1,6 @@
 ﻿using AssetLog.Api.DTOs;
 using AssetLog.Api.Models;
+using AssetLog.Api.Models.Enums;
 using AssetLog.Api.Repositories.UserRepository;
 
 namespace AssetLog.Api.Services.UserService
@@ -26,6 +27,10 @@ namespace AssetLog.Api.Services.UserService
             {
                 throw new InvalidOperationException("Email already registered.");
             }
+
+            var typeOfContract = dto.Role == RoleEnum.TRAINEE
+                                ? TypeOfContractEnum.TEMPORARY
+                                : dto.TypeOfContract;
             var user = new User
             {
                 Name = dto.Name,
@@ -35,7 +40,7 @@ namespace AssetLog.Api.Services.UserService
                 Department = dto.Department,
                 EndDate = dto.EndDate??DateTime.MaxValue,
                 IsActive = true,
-                TypeOfContract = dto.TypeOfContract
+                TypeOfContract = typeOfContract
             };
             
             var createdUser = await userRepository.AddUser(user, cancellationToken);
@@ -46,12 +51,17 @@ namespace AssetLog.Api.Services.UserService
         {
             var user = await userRepository.GetUserById(userId, cancellationToken)
                 ?? throw new KeyNotFoundException($"User with ID {userId} was not found.");
+
+            var typeOfContract = dto.Role == RoleEnum.TRAINEE
+                                ? TypeOfContractEnum.TEMPORARY
+                                : dto.TypeOfContract;
+
             user.Name = dto.Name;
             user.Role = dto.Role;
             user.Department = dto.Department;
             user.IsActive = dto.IsActive;
             user.EndDate = dto.EndDate ?? DateTime.MaxValue;
-            user.TypeOfContract = dto.TypeOfContract;
+            user.TypeOfContract = typeOfContract;
 
             await userRepository.SaveChangesAsync(cancellationToken);
             return MapToUserDto(user);
