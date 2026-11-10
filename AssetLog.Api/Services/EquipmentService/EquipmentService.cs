@@ -1,13 +1,12 @@
 using AssetLog.Api.DTOs;
-using AssetLog.Api.Models.Enums;
 using AssetLog.Api.Models;
+using AssetLog.Api.Models.Enums;
 using AssetLog.Api.Repositories.EquipmentRepository;
+using AssetLog.Api.Repositories.UserRepository;
 
-
-
-namespace AssetLog.Api.Services.EquipmentServices
+namespace AssetLog.Api.Services.EquipmentService
 {
-    public class EquipmentService(IEquipmentRepository equipmentRepository) : IEquipmentService
+    public class EquipmentService(IEquipmentRepository equipmentRepository, IUserRepository userRepository) : IEquipmentService
     {
         public async Task<EquipmentDto> CreateEquipment(CreateEquipmentDto newEquipment, CancellationToken cancellationToken = default)
         {
@@ -81,6 +80,18 @@ namespace AssetLog.Api.Services.EquipmentServices
             ?? throw new KeyNotFoundException($"Equipment with ID {Id} not found.");
             return MapToEquipmentDto(equipment);
         }
+
+        public async Task<List<EquipmentDto>> GetEquipmentByUserId(int userId, CancellationToken cancellationToken = default)
+        {
+            var users = await userRepository.GetUserById(userId, cancellationToken)
+            ?? throw new KeyNotFoundException($"User with ID {userId} was not found.");
+
+            var equipment = await equipmentRepository.GetEquipmentsByUserId(userId, cancellationToken);
+            return equipment.Select(MapToEquipmentDto).ToList();
+
+
+        }
+
         public async Task<List<EquipmentDto>> GetAllEquipment(CancellationToken cancellationToken = default)
         {
             var equipments = await equipmentRepository.GetAllEquipment(cancellationToken);
@@ -108,7 +119,6 @@ namespace AssetLog.Api.Services.EquipmentServices
 
             return MapToEquipmentDto(equipment);
         }
-
 
         private static EquipmentDto MapToEquipmentDto(Equipment equipment)
         {

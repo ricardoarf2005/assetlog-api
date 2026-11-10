@@ -1,11 +1,9 @@
 ﻿using AssetLog.Api.Data;
 using AssetLog.Api.DTOs;
-using AssetLog.Api.Models;
-using AssetLog.Api.Services;
+using AssetLog.Api.Services.UserService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Security.Claims;
 
 [ApiController, Route("api/auth")]

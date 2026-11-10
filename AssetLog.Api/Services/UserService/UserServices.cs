@@ -1,11 +1,8 @@
 ﻿using AssetLog.Api.DTOs;
 using AssetLog.Api.Models;
-using AssetLog.Api.Models.Enums;
 using AssetLog.Api.Repositories.UserRepository;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Logging;
 
-namespace AssetLog.Api.Services.UserServices
+namespace AssetLog.Api.Services.UserService
 {
     public class UserService(IUserRepository userRepository) : IUserService
     {
@@ -15,23 +12,11 @@ namespace AssetLog.Api.Services.UserServices
             return users.Select(MapToUserDto).ToList();
         }
 
-
         public async Task<UserDto> GetUsersById(int userId, CancellationToken cancellationToken = default)
         {
             var user = await userRepository.GetUserById(userId, cancellationToken)
                 ?? throw new KeyNotFoundException($"User with ID {userId} was not found.");
             return MapToUserDto(user);
-        }
-
-        public async Task<List<EquipmentDto>> GetEquipmentByUserId(int userId, CancellationToken cancellationToken = default)
-        {
-            var users = await userRepository.GetUserById(userId, cancellationToken)
-            ?? throw new KeyNotFoundException($"User with ID {userId} was not found.");
-
-            var equipment = await userRepository.GetEquipmentsByUserId(userId, cancellationToken);
-            return equipment.Select(MapToEquipmentDto).ToList();
-
-
         }
 
         public async Task<UserDto> CreateUser(CreateUserDto dto, CancellationToken cancellationToken = default)
@@ -57,8 +42,6 @@ namespace AssetLog.Api.Services.UserServices
             return MapToUserDto(createdUser);
         }
 
-
-
         public async Task<UserDto> UpdateUser(int userId, UserDto dto, CancellationToken cancellationToken = default)
         {
             var user = await userRepository.GetUserById(userId, cancellationToken)
@@ -67,7 +50,7 @@ namespace AssetLog.Api.Services.UserServices
             user.Role = dto.Role;
             user.Department = dto.Department;
             user.IsActive = dto.IsActive;
-            user.EndDate = dto.EndDate;
+            user.EndDate = dto.EndDate ?? DateTime.MaxValue;
             user.TypeOfContract = dto.TypeOfContract;
 
             await userRepository.SaveChangesAsync(cancellationToken);
@@ -82,9 +65,6 @@ namespace AssetLog.Api.Services.UserServices
             await userRepository.DeleteUser(userId);
         }
 
-
-
-
         private static UserDto MapToUserDto(User user)
         {
             return new UserDto
@@ -97,17 +77,6 @@ namespace AssetLog.Api.Services.UserServices
                 IsActive = user.IsActive,
                 EndDate = user.EndDate,
                 TypeOfContract = user.TypeOfContract
-            };
-        }
-
-        private static EquipmentDto MapToEquipmentDto(Equipment equipment)
-        {
-            return new EquipmentDto
-            {
-                Id = equipment.Id,
-                Name = equipment.Name,
-                Description = equipment.Description,
-                Category = equipment.Category
             };
         }
     }

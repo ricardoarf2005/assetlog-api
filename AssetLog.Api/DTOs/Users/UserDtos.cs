@@ -12,7 +12,7 @@ namespace AssetLog.Api.DTOs
         public RoleEnum Role { get; set; }
         public DepartmentEnum Department { get; set; }
         public bool IsActive { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public TypeOfContractEnum TypeOfContract { get; set; }
     }
 

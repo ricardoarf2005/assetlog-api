@@ -1,12 +1,16 @@
 using AssetLog.Api.Data;
+using AssetLog.Api.Models;
+using AssetLog.Api.Models.Enums;
+using AssetLog.Api.Repositories.EquipmentRepository;
 using AssetLog.Api.Repositories.OrderRepository;
 using AssetLog.Api.Repositories.TrackingRepository;
 using AssetLog.Api.Repositories.UserRepository;
-using AssetLog.Api.Services;
+using AssetLog.Api.Services.EquipmentService;
 using AssetLog.Api.Services.OrderService;
 using AssetLog.Api.Services.TrackingService;
-using AssetLog.Api.Services.UserServices;
+using AssetLog.Api.Services.UserService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -69,6 +73,29 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+
+    if (!await context.Users.AnyAsync())
+    {
+        var hasher = new PasswordHasher<User>();
+        var admin = new User
+        {
+            Name = "admin",
+            Email = "admin@example.com",
+            Role = RoleEnum.MANAGER,
+            Department = DepartmentEnum.IT,
+            TypeOfContract = TypeOfContractEnum.PERMANENT
+        };
+        admin.PasswordHash = hasher.HashPassword(admin, "123");
+
+        context.Users.Add(admin);
+        await context.SaveChangesAsync();
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {

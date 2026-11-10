@@ -1,6 +1,5 @@
 using AssetLog.Api.DTOs;
-using AssetLog.Api.Models.Enums;
-using AssetLog.Api.Services.EquipmentServices;
+using AssetLog.Api.Services.EquipmentService;
 using Microsoft.AspNetCore.Mvc;
 
 
