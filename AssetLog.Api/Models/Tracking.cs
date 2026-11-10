@@ -11,6 +11,7 @@ namespace AssetLog.Api.Models
         public DateTime Date { get; set; }
         public StatusEnum Status { get; set; }
         public String? Comments { get; set; }
+        // É preciso isto aqui?
         public int TrackingNotificationId { get; set; }
 
 

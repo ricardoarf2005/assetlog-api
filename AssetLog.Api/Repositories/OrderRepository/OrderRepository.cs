@@ -55,27 +55,9 @@ namespace AssetLog.Api.Repositories.OrderRepository
                 .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
         }
 
-        public async Task<User?> GetUserByIdAsync(int userId, CancellationToken cancellationToken = default)
-        {
-            return await db.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
-        }
-
-        public async Task<List<Equipment>> GetEquipmentsByIdsAsync(IEnumerable<int> equipmentIds, CancellationToken cancellationToken = default)
-        {
-            var ids = equipmentIds.Distinct().ToList();
-            return await db.Equipments
-                .Where(e => ids.Contains(e.Id))
-                .ToListAsync(cancellationToken);
-        }
-
         public async Task AddOrderAsync(Order order, CancellationToken cancellationToken = default)
         {
             await db.Orders.AddAsync(order, cancellationToken);
-        }
-
-        public async Task AddTrackingAsync(Tracking tracking, CancellationToken cancellationToken = default)
-        {
-            await db.Trackings.AddAsync(tracking, cancellationToken);
         }
 
         public async Task AddStockNotificationAsync(StockNotification stockNotification, CancellationToken cancellationToken = default)
