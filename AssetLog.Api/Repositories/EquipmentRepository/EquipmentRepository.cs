@@ -30,7 +30,7 @@ namespace AssetLog.Api.Repositories.EquipmentRepository
             var equipment = db.Orders
                                 .Include(o => o.OrderItems)
                                     .ThenInclude(o => o.Equipment)
-                                .Where(o => o.UserId == userId && (o.Status == StatusEnum.APPROVED || o.Status == StatusEnum.ONGOING))
+                                .Where(o => o.UserId == userId && (o.Status == StatusEnum.ONGOING))
                                 .SelectMany(x => x.OrderItems.Select(e => e.Equipment));
 
             return equipment.ToList();
