@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace AssetLog.Api.Services
+namespace AssetLog.Api.Services.UserService
 {
     public class TokenService(IConfiguration config)
     {

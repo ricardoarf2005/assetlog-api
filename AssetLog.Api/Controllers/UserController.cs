@@ -1,6 +1,7 @@
 ﻿using AssetLog.Api.DTOs;
 using AssetLog.Api.Models;
-using AssetLog.Api.Services.UserServices;
+using AssetLog.Api.Services.EquipmentService;
+using AssetLog.Api.Services.UserService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,7 +13,7 @@ namespace AssetLog.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Roles = "MANAGER")]
-public class UsersController(IUserService userService) : ControllerBase
+public class UsersController(IUserService userService, IEquipmentService equipmentService) : ControllerBase
 {
     // GET /users ->  users
     [HttpGet()]
@@ -60,12 +61,14 @@ public class UsersController(IUserService userService) : ControllerBase
             return NotFound();
 
         
-        var equipment = await userService.GetEquipmentByUserId(id);
+        var equipment = await equipmentService.GetEquipmentByUserId(id);
         return Ok(equipment);
     }
 
     // POST /users ->  create user
     [HttpPost]
+    [Authorize()]
+    [AllowAnonymous]
     public async Task<IActionResult> CreateUser(CreateUserDto newUser)
     {
         var user = await userService.CreateUser(newUser);

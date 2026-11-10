@@ -1,12 +1,15 @@
 using AssetLog.Api.DTOs;
 using AssetLog.Api.Models;
 using AssetLog.Api.Models.Enums;
+using AssetLog.Api.Repositories.EquipmentRepository;
 using AssetLog.Api.Repositories.OrderRepository;
 using AssetLog.Api.Repositories.TrackingRepository;
+using AssetLog.Api.Repositories.UserRepository;
 
 namespace AssetLog.Api.Services.OrderService
 {
-    public class OrderService(IOrderRepository orderRepository, ITrackingRepository trackingRepository) : IOrderService
+    public class OrderService(IOrderRepository orderRepository, ITrackingRepository trackingRepository, 
+            IUserRepository userRepository, IEquipmentRepository equipmentRepository) : IOrderService
     {
         public async Task<List<OrderSummaryDto>> GetUserOrdersAsync(int userId, CancellationToken cancellationToken = default)
         {
@@ -44,7 +47,7 @@ namespace AssetLog.Api.Services.OrderService
 
         public async Task<OrderDetailDto> CreateOrderAsync(CreateOrderRequestDto request, CancellationToken cancellationToken = default)
         {
-            var user = await orderRepository.GetUserByIdAsync(request.UserId, cancellationToken)
+            var user = await userRepository.GetUserById(request.UserId, cancellationToken)
                 ?? throw new KeyNotFoundException($"User with ID {request.UserId} was not found.");
 
             if (request.Items is null || request.Items.Count == 0)
@@ -53,7 +56,7 @@ namespace AssetLog.Api.Services.OrderService
             }
 
             var equipmentIds = request.Items.Select(i => i.EquipmentId).Distinct().ToList();
-            var equipments = await orderRepository.GetEquipmentsByIdsAsync(equipmentIds, cancellationToken);
+            var equipments = await equipmentRepository.GetEquipmentsByIds(equipmentIds, cancellationToken);
 
             if (equipments.Count != equipmentIds.Count)
             {
@@ -98,13 +101,39 @@ namespace AssetLog.Api.Services.OrderService
             var order = await orderRepository.GetOrderByIdWithDetailsAsync(orderId, cancellationToken)
                 ?? throw new KeyNotFoundException($"Order with ID {orderId} was not found.");
 
-            var approver = await orderRepository.GetUserByIdAsync(request.ApproverId, cancellationToken)
+            var approver = await userRepository.GetUserById(request.ApproverId, cancellationToken)
                 ?? throw new KeyNotFoundException($"Approver with ID {request.ApproverId} was not found.");
 
             var previousStatus = order.Status;
             var targetStatus = request.Status;
-            order.ApproverId = approver.Id;
-            order.Approver = approver;
+
+            bool isRequesterCancelling = approver.Id == order.UserId;
+            if (isRequesterCancelling)
+            {
+                var canCancel = targetStatus == StatusEnum.CLOSED &&
+                    (previousStatus == StatusEnum.OPENED || previousStatus == StatusEnum.PENDING || previousStatus == StatusEnum.BLOCKED);
+
+                if (!canCancel)
+                {
+                    throw new InvalidOperationException("O colaborador apenas pode cancelar (CLOSED) o seu próprio pedido antes de este ser aprovado.");
+                }
+            }
+            else
+            {
+                if (order.ApproverId.HasValue && order.ApproverId.Value != approver.Id)
+                {
+                    throw new InvalidOperationException($"Apenas o aprovador atribuído ({order.Approver?.Name ?? $"#{order.ApproverId}"}) pode alterar o estado deste pedido.");
+                }
+
+                if (approver.Department != DepartmentEnum.IT ||
+                    (approver.Role != RoleEnum.MANAGER && approver.Role != RoleEnum.EMPLOYEE))
+                {
+                    throw new InvalidOperationException("O aprovador tem de pertencer ao departamento de IT com perfil Manager ou Employee.");
+                }
+
+                order.ApproverId = approver.Id;
+                order.Approver = approver;
+            }
 
             string notificationMessage;
 
@@ -205,8 +234,24 @@ namespace AssetLog.Api.Services.OrderService
             var order = await orderRepository.GetOrderByIdWithDetailsAsync(orderId, cancellationToken)
                 ?? throw new KeyNotFoundException($"Order with ID {orderId} was not found.");
 
-            var approver = await orderRepository.GetUserByIdAsync(request.ApproverId, cancellationToken)
+            var approver = await userRepository.GetUserById(request.ApproverId, cancellationToken)
                 ?? throw new KeyNotFoundException($"Approver with ID {request.ApproverId} was not found.");
+
+            if (approver.Id == order.UserId)
+            {
+                throw new InvalidOperationException("O requisitante não pode ser o aprovador do seu próprio pedido.");
+            }
+
+            if (order.ApproverId.HasValue && order.ApproverId.Value != approver.Id)
+            {
+                throw new InvalidOperationException($"Apenas o aprovador atribuído ({order.Approver?.Name ?? $"#{order.ApproverId}"}) pode alterar a data de entrega deste pedido.");
+            }
+
+            if (approver.Department != DepartmentEnum.IT ||
+                (approver.Role != RoleEnum.MANAGER && approver.Role != RoleEnum.EMPLOYEE))
+            {
+                throw new InvalidOperationException("O aprovador tem de pertencer ao departamento de IT com perfil Manager ou Employee.");
+            }
 
             order.ExpectedDeliveryDate = request.ExpectedDeliveryDate;
             order.ApproverId ??= approver.Id;
@@ -322,7 +367,7 @@ namespace AssetLog.Api.Services.OrderService
                     Id = oi.Id,
                     EquipmentId = oi.EquipmentId,
                     EquipmentName = oi.Equipment?.Name ?? string.Empty,
-                    Description = oi.Equipment?.Descritpion ?? string.Empty,
+                    Description = oi.Equipment?.Description ?? string.Empty,
                     Category = oi.Equipment?.Category ?? default,
                     Quantity = oi.Quantity
                 }).ToList(),

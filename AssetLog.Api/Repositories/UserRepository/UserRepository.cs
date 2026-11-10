@@ -46,18 +46,5 @@ namespace AssetLog.Api.Repositories.UserRepository
                 await SaveChangesAsync();
             }
         }
-
-        public async Task<List<Equipment>> GetEquipmentsByUserId(int userId, CancellationToken cancellationToken = default)
-        {
-            var equipment = db.Orders
-                                .Include(o => o.OrderItems)
-                                    .ThenInclude(o => o.Equipment)
-                                .Where(o => o.UserId == userId && (o.Status == StatusEnum.APPROVED || o.Status == StatusEnum.ONGOING))
-                                .SelectMany(x => x.OrderItems.Select(e => e.Equipment));
-
-
-            return equipment.ToList();
-
-        }
     }
 }

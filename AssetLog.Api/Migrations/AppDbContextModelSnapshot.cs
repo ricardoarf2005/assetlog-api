@@ -33,7 +33,7 @@ namespace AssetLog.Api.Migrations
                     b.Property<int>("Category")
                         .HasColumnType("int");
 
-                    b.Property<string>("Descritpion")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("longtext");
 

@@ -39,12 +39,26 @@ namespace AssetLog.Api.Controllers
             return Ok(orders);
         }
 
-        // GET /api/order/{orderId} & GET /api/order/user/{userId}/{orderId} -> Detalhes da order
+        // GET /api/order/{orderId} -> Detalhes da order
         [HttpGet("{orderId:int}")]
+        public async Task<ActionResult<OrderDetailDto>> GetOrderDetails(
+            [FromRoute] int orderId,
+            CancellationToken cancellationToken)
+        {
+            var order = await orderService.GetOrderDetailsAsync(orderId, null, cancellationToken);
+            if (order is null)
+            {
+                return NotFound(new { message = $"Order with ID {orderId} was not found." });
+            }
+
+            return Ok(order);
+        }
+
+        // GET /api/order/user/{userId}/{orderId}
         [HttpGet("user/{userId:int}/{orderId:int}")]
         public async Task<ActionResult<OrderDetailDto>> GetOrderDetails(
             [FromRoute] int orderId,
-            [FromRoute] int? userId,
+            [FromRoute] int userId,
             CancellationToken cancellationToken)
         {
             var order = await orderService.GetOrderDetailsAsync(orderId, userId, cancellationToken);
@@ -93,6 +107,10 @@ namespace AssetLog.Api.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
+            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // PUT /api/order/{orderId}/expected-delivery-date -> alteração da data de entrega expectável
@@ -110,6 +128,10 @@ namespace AssetLog.Api.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
 
